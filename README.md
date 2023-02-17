@@ -5,6 +5,6 @@ application for watching movies together, built with NodeJS and Socket.io
 
 <img src="https://github.com/gerinsp/stats/blob/main/dekstop.png" />
 
-# Mobile viw
+# Mobile view
 
 <img src="https://github.com/gerinsp/stats/blob/main/mobile.png" />
