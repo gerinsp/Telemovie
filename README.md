@@ -1,14 +1,6 @@
 # Telemovie
 application for watching movies together, built with NodeJS and Socket.io
 
-## <h2>Desktop View</h2>
-
-<img src="https://github.com/gerinsp/stats/blob/main/dekstop.png" />
-
-## <h2>Mobile view</h2>
-
-<img src="https://github.com/gerinsp/stats/blob/main/mobile.png" />
-
 <h2>Instalasi</h2>
 <ol dir="auto">
 <li>Buka terminal</li>
@@ -23,4 +15,14 @@ application for watching movies together, built with NodeJS and Socket.io
 <li>ketikan perintah <code>npm run start</code> untuk menjalankan aplikasi
 </ol>
 <br>
+
+## <h2>Mobile view</h2>
+
+<img src="https://github.com/gerinsp/stats/blob/main/mobile.png" />
+
+## <h2>Desktop View</h2>
+
+<img src="https://github.com/gerinsp/stats/blob/main/dekstop.png" />
+
+
 
