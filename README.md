@@ -14,7 +14,6 @@ application for watching movies together, built with NodeJS and Socket.io
 <ol dir="auto" start="4">
 <li>ketikan perintah <code>npm run start</code> untuk menjalankan aplikasi
 </ol>
-<br>
 
 ## <h2>Mobile view</h2>
 
