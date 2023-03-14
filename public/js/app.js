@@ -123,6 +123,7 @@ const socket = io();
               messageList.appendChild(chatList);
               message.value = '';
           }
+          messageList.scrollTop = messageList.scrollHeight;
       })
 
       socket.on("message", (name, message) => {
@@ -130,6 +131,7 @@ const socket = io();
         broadcast.style.textAlign = "left";
         broadcast.textContent = name + " : " + message;
         messageList.appendChild(broadcast)
+        messageList.scrollTop = messageList.scrollHeight;
       })
 
       
