@@ -6,10 +6,19 @@ const socket = io();
       const header= document.getElementById('header');
       const typing = document.getElementById('typing');
       const userList = document.getElementById('userList');
+      const emoji = document.getElementById('emoji');
+      const emojiPicker = document.querySelector('emoji-picker');
       let isPlaying = false;
       let typingTimer;
 
       const name = prompt("Silahkan masukan nama anda.", "");
+
+      emoji.addEventListener('click', () => {
+        emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
+      })
+
+        emojiPicker
+        .addEventListener('emoji-click', event => message.value += event.detail.unicode);
 
       message.addEventListener('input', () => {
         clearTimeout(typingTimer);

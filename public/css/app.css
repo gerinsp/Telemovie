@@ -48,6 +48,11 @@
     border-bottom-right-radius: 25px;
     margin-top: 35px;
   }
+  emoji-picker {
+    width: 270px;
+    height: 300px;
+    --num-columns: 5;
+  }
 }
 
   @media only screen and (max-width: 550px) {
@@ -96,6 +101,9 @@
       border-bottom-right-radius: 25px;
       margin-top: 20px;
     }
+  }
+  #emoji-picker {
+    display: none;
   }
   
   
