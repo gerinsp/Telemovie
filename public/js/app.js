@@ -12,10 +12,44 @@ const socket = io();
       let typingTimer;
 
       const name = prompt("Silahkan masukan nama anda.", "");
+      if (window.innerWidth <= 550) {
+        messageList.style.height = '400px';
+      }
 
+      message.addEventListener('focus', () => {
+        if (window.innerWidth <= 550) {
+          messageList.style.height = '120px';
+          messageList.scrollTop = messageList.scrollHeight;
+        }
+      });
+
+      message.addEventListener('blur', () => {
+        if (window.innerWidth <= 550) {
+          messageList.style.height = '400px';
+          messageList.scrollTop = messageList.scrollHeight;
+        }
+      })
+
+      emojiPicker.style.display = 'none'
       emoji.addEventListener('click', () => {
         emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
-      })
+        if (emojiPicker.style.display === 'none') {
+          if (window.innerWidth <= 550) {
+            messageList.style.height = '400px';
+          } else {
+            messageList.style.height = '500px';
+          }
+          console.log('none');
+        } else if (emojiPicker.style.display === 'block') {
+          if (window.innerWidth <= 550) {
+            messageList.style.height = '120px';
+          } else {
+            messageList.style.height = '200px';
+          }
+          console.log('block');
+        }
+        messageList.scrollTop = messageList.scrollHeight;
+      });
 
         emojiPicker
         .addEventListener('emoji-click', event => message.value += event.detail.unicode);

@@ -83,10 +83,6 @@
       border: 0;
     }
 
-    #messageList {
-      height: 400px;
-    }
-
     .kirim {
       position: absolute;
       bottom: 0;
@@ -101,9 +97,6 @@
       border-bottom-right-radius: 25px;
       margin-top: 20px;
     }
-  }
-  #emoji-picker {
-    display: none;
   }
   
   
