@@ -1,122 +1,181 @@
 const socket = io();
-      const messageList = document.getElementById('messageList');
-      const sendMessage = document.getElementById('sendMessage');
-      const message = document.getElementById('message');
-      const video = document.getElementById("video");
-      const header= document.getElementById('header');
-      const typing = document.getElementById('typing');
-      const userList = document.getElementById('userList');
-      const emoji = document.getElementById('emoji');
-      const emojiPicker = document.querySelector('emoji-picker');
-      let isPlaying = false;
-      let typingTimer;
+const messageList = document.getElementById("messageList");
+const sendMessage = document.getElementById("sendMessage");
+const message = document.getElementById("message");
+const video = document.getElementById("video");
+const header = document.getElementById("header");
+const typing = document.getElementById("typing");
+const userList = document.getElementById("userList");
+const emoji = document.getElementById("emoji");
+const emojiPicker = document.querySelector("emoji-picker");
+const videoContainer = document.getElementById("video-container");
+const startCallButton = document.getElementById('startCallBtn');
+let isPlaying = false;
+let typingTimer;
+let localStream;
+let socketId;
+let id1;
 
-      const name = prompt("Silahkan masukan nama anda.", "");
-      if (window.innerWidth <= 550) {
-        messageList.style.height = '400px';
-      }
+const name = prompt("Silahkan masukan nama anda.", "");
 
-      message.addEventListener('focus', () => {
-        if (window.innerWidth <= 550) {
-          messageList.style.height = '120px';
-          messageList.scrollTop = messageList.scrollHeight;
-        }
-      });
+// peerjs
+var peer = new Peer();
 
-      message.addEventListener('blur', () => {
-        if (window.innerWidth <= 550) {
-          messageList.style.height = '400px';
-          messageList.scrollTop = messageList.scrollHeight;
-        }
-      })
+peer.on('open', id => {
+  id1 = id
+  console.log('id awal' + id1)
+});
 
-      emojiPicker.style.display = 'none'
-      emoji.addEventListener('click', () => {
-        emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
-        if (emojiPicker.style.display === 'none') {
-          if (window.innerWidth <= 550) {
-            messageList.style.height = '400px';
-          } else {
-            messageList.style.height = '500px';
-          }
-          console.log('none');
-        } else if (emojiPicker.style.display === 'block') {
-          if (window.innerWidth <= 550) {
-            messageList.style.height = '120px';
-          } else {
-            messageList.style.height = '200px';
-          }
-          console.log('block');
-        }
-        messageList.scrollTop = messageList.scrollHeight;
-      });
+navigator.mediaDevices.getUserMedia({ audio: true })
+.then(stream => {
+  localStream = stream;
+})
 
-        emojiPicker
-        .addEventListener('emoji-click', event => message.value += event.detail.unicode);
+socket.on('audio-aktif', (name) => {
+  const mic = document.createElement("p");
+    mic.style.textAlign = "center";
+    mic.innerHTML = `<p><i><small>${name} mengaktifkan microfont.</small></i></p>`;
+    messageList.appendChild(mic);
+})
 
-      message.addEventListener('input', () => {
-        clearTimeout(typingTimer);
-        socket.emit('typing', name);
-        typingTimer = setTimeout(() => {
-          socket.emit('stop typing')
-        }, 2000);
-      });
+startCallButton.addEventListener('click', () => {
+  startCallButton.innerText = 'Listening...';
+  socket.emit('peerId', id1);
+  socket.emit('audio-aktif', name);
+  console.log(id1)
+})
 
-      socket.on('typing', (message) => {
-        const text = `<em><small>${message}</small></em>`;
-        typing.innerHTML = text;
-      });
+socket.on('call', (peerId) => {
+  console.log(peerId)
+  const remotePeerId = peerId;
+  const call = peer.call(remotePeerId, localStream);
+  call.on('stream', stream => {
+    const remoteAudio = new Audio();
+    remoteAudio.srcObject = stream;
+    remoteAudio.play()
+  })
+});
 
-      socket.on('stop typing', () => {
-        const text = '';
-        typing.innerHTML = text;
-      });
+peer.on('call', call => {
+  console.log('answer')
+  startCallButton.innerText = 'Listening...';
+  call.answer(localStream);
+  call.on('stream', stream => {
+    const remoteAudio = new Audio();
+    remoteAudio.srcObject = stream;
+    remoteAudio.play()
+  })
+})
 
-      video.addEventListener('play', () => {
-        isPlaying = true;
-        socket.emit('play');
-      });
+if (window.innerWidth <= 550) {
+  messageList.style.height = "400px";
+}
 
-      video.addEventListener('pause', () => {
-        isPlaying = false;
-        socket.emit('pause');
-      });
+message.addEventListener("focus", () => {
+  if (window.innerWidth <= 550) {
+    messageList.style.height = "120px";
+    messageList.scrollTop = messageList.scrollHeight;
+  }
+});
 
-      video.addEventListener('timeupdate', () => {
+message.addEventListener("blur", () => {
+  if (window.innerWidth <= 550) {
+    messageList.style.height = "400px";
+    messageList.scrollTop = messageList.scrollHeight;
+  }
+});
 
-        if(isPlaying) {
-          socket.emit('timeupdate', video.currentTime);
-        }
-      });
+emojiPicker.style.display = "none";
+emoji.addEventListener("click", () => {
+  emojiPicker.style.display =
+    emojiPicker.style.display === "none" ? "block" : "none";
+  if (emojiPicker.style.display === "none") {
+    if (window.innerWidth <= 550) {
+      messageList.style.height = "400px";
+    } else {
+      messageList.style.height = "500px";
+    }
+    console.log("none");
+  } else if (emojiPicker.style.display === "block") {
+    if (window.innerWidth <= 550) {
+      messageList.style.height = "120px";
+    } else {
+      messageList.style.height = "200px";
+    }
+    console.log("block");
+  }
+  messageList.scrollTop = messageList.scrollHeight;
+});
 
-      window.addEventListener('load', () => {
-        socket.emit("join", name);
+emojiPicker.addEventListener(
+  "emoji-click",
+  (event) => (message.value += event.detail.unicode)
+);
 
-        socket.on("join", (names) => {
-          console.log('join')
-          const name = document.createElement('p');
-          name.style.textAlign = "center";
-          name.innerHTML = `<p><i><small>${names} bergabung kedalam room.</small></i></p>`;
-          messageList.appendChild(name);
-        });
+message.addEventListener("input", () => {
+  clearTimeout(typingTimer);
+  socket.emit("typing", name);
+  typingTimer = setTimeout(() => {
+    socket.emit("stop typing");
+  }, 2000);
+});
 
-        socket.on('user-disconnect', (names, id) => {
-          const disconnectedId = id;
-          const disconnectedElement = document.getElementById(disconnectedId);
-          const name = document.createElement('p');
-          name.style.textAlign = "center";
-          name.innerHTML = `<p><i><small>${names} keluar dari room.</small></i></p>`;
-          messageList.appendChild(name);
-          if(disconnectedElement) {
-            disconnectedElement.remove();
-          }
-        });
+socket.on("typing", (message) => {
+  const text = `<em><small>${message}</small></em>`;
+  typing.innerHTML = text;
+});
 
-        socket.on('userList', (data) => {
-          console.log(data)
-          userList.innerHTML = ''; // clear the previous HTML content
-         for( let [id, value] of Object.entries(data)) {
-            userList.insertAdjacentHTML('beforeend', `
+socket.on("stop typing", () => {
+  const text = "";
+  typing.innerHTML = text;
+});
+
+video.addEventListener("play", () => {
+  isPlaying = true;
+  socket.emit("play");
+});
+
+video.addEventListener("pause", () => {
+  isPlaying = false;
+  socket.emit("pause");
+});
+
+video.addEventListener("timeupdate", () => {
+  if (isPlaying) {
+    socket.emit("timeupdate", video.currentTime);
+  }
+});
+
+window.addEventListener("load", () => {
+  socket.emit("join", name);
+
+  socket.on("join", (names) => {
+    console.log("join");
+    const name = document.createElement("p");
+    name.style.textAlign = "center";
+    name.innerHTML = `<p><i><small>${names} bergabung kedalam room.</small></i></p>`;
+    messageList.appendChild(name);
+  });
+
+  socket.on("user-disconnect", (names, id) => {
+    const disconnectedId = id;
+    const disconnectedElement = document.getElementById(disconnectedId);
+    const name = document.createElement("p");
+    name.style.textAlign = "center";
+    name.innerHTML = `<p><i><small>${names} keluar dari room.</small></i></p>`;
+    messageList.appendChild(name);
+    if (disconnectedElement) {
+      disconnectedElement.remove();
+    }
+  });
+
+  socket.on("userList", (data) => {
+    console.log(data);
+    userList.innerHTML = ""; // clear the previous HTML content
+    for (let [id, value] of Object.entries(data)) {
+      userList.insertAdjacentHTML(
+        "beforeend",
+        `
               <div class="col" id="${id}" style="margin-right: 20px;">
                 <div class="card border-0">
                 </div>
@@ -127,54 +186,53 @@ const socket = io();
                   <p class="text-center">${value}</p>
                 </div>
               </div>
-            `);
-          };
-        });
+            `
+      );
+    }
+  });
 
-        socket.on('play', () => {
-          console.log('videonya di play')
-          video.play();
-        });
+  socket.on("play", () => {
+    console.log("videonya di play");
+    video.play();
+  });
 
-        socket.on('pause', () => {
-          console.log('videonya di pause')
-          video.pause();
-        });
+  socket.on("pause", () => {
+    console.log("videonya di pause");
+    video.pause();
+  });
 
-        socket.on('timeupdate', (time) => {
-          video.addEventListener('play', () => {
-            video.currentTime = time;
-          });
+  socket.on("timeupdate", (time) => {
+    video.addEventListener("play", () => {
+      video.currentTime = time;
+    });
 
-          video.addEventListener('pause', () => {
-            video.currentTime = 0;
-          });
-        });
-      });
+    video.addEventListener("pause", () => {
+      video.currentTime = 0;
+    });
+  });
+});
 
-      sendMessage.addEventListener("click", (e) => {
-          e.preventDefault();
-          if(message.value) {
-            const data = {
-              name: name,
-              message: message.value
-            }
-            socket.emit("message", data);
-              let chatList = document.createElement('p');
-              chatList.style.textAlign = "right";
-              chatList.textContent = message.value;
-              messageList.appendChild(chatList);
-              message.value = '';
-          }
-          messageList.scrollTop = messageList.scrollHeight;
-      })
+sendMessage.addEventListener("click", (e) => {
+  e.preventDefault();
+  if (message.value) {
+    const data = {
+      name: name,
+      message: message.value,
+    };
+    socket.emit("message", data);
+    let chatList = document.createElement("p");
+    chatList.style.textAlign = "right";
+    chatList.textContent = message.value;
+    messageList.appendChild(chatList);
+    message.value = "";
+  }
+  messageList.scrollTop = messageList.scrollHeight;
+});
 
-      socket.on("message", (name, message) => {
-        let broadcast = document.createElement('p');
-        broadcast.style.textAlign = "left";
-        broadcast.textContent = name + " : " + message;
-        messageList.appendChild(broadcast)
-        messageList.scrollTop = messageList.scrollHeight;
-      })
-
-      
+socket.on("message", (name, message) => {
+  let broadcast = document.createElement("p");
+  broadcast.style.textAlign = "left";
+  broadcast.textContent = name + " : " + message;
+  messageList.appendChild(broadcast);
+  messageList.scrollTop = messageList.scrollHeight;
+});
