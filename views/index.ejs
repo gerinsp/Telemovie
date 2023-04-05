@@ -17,6 +17,31 @@
     <link rel="stylesheet" href="/css/app.css" />
   </head>
   <body>
+    <div class="card-video bg-dark p-3">
+      <h5 class="text-center">Video Call</h5>
+      <div class="row mt-3">
+        <div class="col-md-6 col-sm-12">
+          <video class="video-call" id="video1"></video>
+        </div>
+        <div class="col-md-6 col-sm-12">
+          <video class="video-call" id="video2"></video>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-md-5"></div>
+        <div class="col-md-1">
+          <button class="btn btn-sm btn-outline-secondary" id="btn-video">
+            <i class="bi bi-camera-video"></i>
+          </button>
+        </div>
+        <div class="col-md-1">
+          <button class="btn btn-sm btn-outline-secondary" id="btn-reject">
+            <i class="bi bi-telephone-inbound"></i>
+          </button>
+        </div>
+        <div class="col-md-5"></div>
+      </div>
+    </div>
     <button
       class="button-menu bg-dark"
       data-bs-toggle="offcanvas"
@@ -49,7 +74,7 @@
         <div class="row" id="userList"></div>
       </div>
     </div>
-    <div class="video-container">
+    <div class="video-container" id="video-container">
       <video width="560" height="315" id="video" controls>
         <source src="/video/videoplayback.mp4" type="video/mp4" />
       </video>
@@ -75,6 +100,12 @@
         <div class="card send">
           <div class="card-header" id="header">
             <div class="input-group">
+              <button
+                class="btn btn-sm btn-outline-secondary"
+                id="startCallBtn"
+              >
+                <i class="bi bi-telephone"></i>
+              </button>
               <button class="btn btn-sm btn-outline-secondary" id="emoji">
                 <i class="bi bi-emoji-smile"></i>
               </button>
@@ -104,6 +135,8 @@
     ></script>
 
     <script src="/socket.io/socket.io.js"></script>
+    <!-- <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script> -->
+    <script src="/js/peerjs.min.js"></script>
     <script src="/js/app.js"></script>
   </body>
 </html>
