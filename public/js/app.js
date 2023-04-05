@@ -10,13 +10,50 @@ const emoji = document.getElementById("emoji");
 const emojiPicker = document.querySelector("emoji-picker");
 const videoContainer = document.getElementById("video-container");
 const startCallButton = document.getElementById('startCallBtn');
+const cardVideo = document.querySelector('.card-video');
+const btnVideo = document.getElementById('btn-video');
+const btnReject = document.getElementById('btn-reject');
+const videoCallContainer = document.getElementById('videoCallContainer');
 let isPlaying = false;
 let typingTimer;
 let localStream;
 let socketId;
 let id1;
+let activeCall;
+
+cardVideo.style.display = 'none';
 
 const name = prompt("Silahkan masukan nama anda.", "");
+
+btnVideo.addEventListener('click', () => {
+  localStream.getTracks().forEach(track => {
+    if(track.enabled) { 
+      track.enabled = false;
+      btnVideo.innerHTML = '<i class="bi bi-camera-video-off"></i>';
+    } else {
+      track.enabled = true;
+      btnVideo.innerHTML = '<i class="bi bi-camera-video"></i>';
+    }
+  })
+})
+
+btnReject.addEventListener('click', () => {
+  if (activeCall) {
+    activeCall.close();
+    cardVideo.style.display = 'none';
+    socket.emit('end-call', name);
+    startCallButton.innerHTML = '<i class="bi bi-telephone"></i>';
+  }
+})
+
+socket.on('end-call', (name) => {
+  const p = document.createElement("p");
+    p.style.textAlign = "center";
+    p.innerHTML = `<p><i><small>${name} mengakhiri panggilan.</small></i></p>`;
+    messageList.appendChild(p);
+    cardVideo.style.display = 'none';
+    startCallButton.innerHTML = '<i class="bi bi-telephone"></i>';
+})
 
 // peerjs
 var peer = new Peer();
@@ -26,20 +63,24 @@ peer.on('open', id => {
   console.log('id awal' + id1)
 });
 
-navigator.mediaDevices.getUserMedia({ audio: true })
+navigator.mediaDevices.getUserMedia({ video: true, audio: true })
 .then(stream => {
   localStream = stream;
+  const videoElement = document.getElementById('video1');
+    videoElement.srcObject = localStream;
+    videoElement.onloadedmetadata = () => videoElement.play();
 })
 
 socket.on('audio-aktif', (name) => {
   const mic = document.createElement("p");
     mic.style.textAlign = "center";
-    mic.innerHTML = `<p><i><small>${name} mengaktifkan microfont.</small></i></p>`;
+    mic.innerHTML = `<p><i><small>${name} melakukan panggilan video.</small></i></p>`;
     messageList.appendChild(mic);
 })
 
 startCallButton.addEventListener('click', () => {
-  startCallButton.innerText = 'Listening...';
+  cardVideo.style.display = 'block';
+  startCallButton.innerText = 'Calling...';
   socket.emit('peerId', id1);
   socket.emit('audio-aktif', name);
   console.log(id1)
@@ -49,21 +90,22 @@ socket.on('call', (peerId) => {
   console.log(peerId)
   const remotePeerId = peerId;
   const call = peer.call(remotePeerId, localStream);
+  activeCall = call;
   call.on('stream', stream => {
-    const remoteAudio = new Audio();
-    remoteAudio.srcObject = stream;
-    remoteAudio.play()
+    const remoteVideo = document.getElementById('video2');
+        remoteVideo.srcObject = stream;
+        remoteVideo.onloadedmetadata = () => remoteVideo.play()
   })
 });
 
 peer.on('call', call => {
   console.log('answer')
-  startCallButton.innerText = 'Listening...';
+  startCallButton.innerText = 'Calling...';
   call.answer(localStream);
   call.on('stream', stream => {
-    const remoteAudio = new Audio();
-    remoteAudio.srcObject = stream;
-    remoteAudio.play()
+    const remoteVideo = document.getElementById('video2');
+        remoteVideo.srcObject = stream;
+        remoteVideo.onloadedmetadata = () => remoteVideo.play()
   })
 })
 
@@ -236,3 +278,78 @@ socket.on("message", (name, message) => {
   messageList.appendChild(broadcast);
   messageList.scrollTop = messageList.scrollHeight;
 });
+
+// card
+
+const card = document.querySelector('.card-video');
+
+let isDragging = false;
+let currentX;
+let currentY;
+let initialX;
+let initialY;
+let xOffset = 0;
+let yOffset = 0;
+
+card.addEventListener('mousedown', dragStart);
+card.addEventListener('mouseup', dragEnd);
+card.addEventListener('mousemove', drag);
+
+function dragStart(e) {
+  initialX = e.clientX - xOffset;
+  initialY = e.clientY - yOffset;
+
+  if (e.target === card) {
+    isDragging = true;
+  }
+}
+
+function dragEnd(e) {
+  initialX = currentX;
+  initialY = currentY;
+
+  isDragging = false;
+}
+
+function drag(e) {
+  if (isDragging) {
+    e.preventDefault();
+
+    currentX = e.clientX - initialX;
+    currentY = e.clientY - initialY;
+
+    xOffset = currentX;
+    yOffset = currentY;
+
+    setTranslate(currentX, currentY, card);
+  }
+}
+
+function setTranslate(xPos, yPos, el) {
+  el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
+}
+
+document.addEventListener("dragstart", function(event) {
+  event.dataTransfer.setData("text/plain", event.target.id);
+  event.target.style.opacity = "0.4";
+});
+
+document.addEventListener("dragend", function(event) {
+  event.target.style.opacity = "1";
+});
+
+document.addEventListener("dragover", function(event) {
+  event.preventDefault();
+});
+
+document.addEventListener("drop", function(event) {
+  event.preventDefault();
+  const data = event.dataTransfer.getData("text/plain");
+  const draggableElement = document.getElementById(data);
+  const dropzone = event.target;
+
+  if (dropzone.classList.contains("dropzone")) {
+    dropzone.appendChild(draggableElement);
+  }
+});
+

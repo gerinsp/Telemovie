@@ -10,6 +10,12 @@ const socket = (io) => {
       socket.broadcast.emit('audio-aktif', name);
     })
 
+    socket.on('end-call', (name) => {
+      socket.broadcast.emit('end-call', name);
+      peerId = [];
+      console.log(peerId)
+    })
+
     // peerjs
     socket.on('peerId', (id) => {
       console.log(id);

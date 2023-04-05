@@ -17,6 +17,31 @@
     <link rel="stylesheet" href="/css/app.css" />
   </head>
   <body>
+    <div class="card-video bg-dark p-3">
+      <h5 class="text-center">Video Call</h5>
+      <div class="row mt-3">
+        <div class="col-md-6 col-sm-12">
+          <video class="video-call" id="video1"></video>
+        </div>
+        <div class="col-md-6 col-sm-12">
+          <video class="video-call" id="video2"></video>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-md-5"></div>
+        <div class="col-md-1">
+          <button class="btn btn-sm btn-outline-secondary" id="btn-video">
+            <i class="bi bi-camera-video"></i>
+          </button>
+        </div>
+        <div class="col-md-1">
+          <button class="btn btn-sm btn-outline-secondary" id="btn-reject">
+            <i class="bi bi-telephone-inbound"></i>
+          </button>
+        </div>
+        <div class="col-md-5"></div>
+      </div>
+    </div>
     <button
       class="button-menu bg-dark"
       data-bs-toggle="offcanvas"
@@ -79,7 +104,7 @@
                 class="btn btn-sm btn-outline-secondary"
                 id="startCallBtn"
               >
-                <i class="bi bi-mic"></i>
+                <i class="bi bi-telephone"></i>
               </button>
               <button class="btn btn-sm btn-outline-secondary" id="emoji">
                 <i class="bi bi-emoji-smile"></i>
